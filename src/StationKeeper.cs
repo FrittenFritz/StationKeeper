@@ -8,6 +8,7 @@ using System.Runtime.InteropServices; using System.Windows.Forms; using System.I
 [assembly: AssemblyCopyright("Copyright (c) 2026 FrittenFritz")]
 [assembly: AssemblyVersion("1.2.0.0")]
 [assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyInformationalVersion("1.2.0")]
 
 static class N {
   [StructLayout(LayoutKind.Sequential)] public struct MI { public int dx, dy; public uint data, flags, time; public IntPtr extra; }
