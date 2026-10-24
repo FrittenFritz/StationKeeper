@@ -1,5 +1,5 @@
 ABOUT (description):
-Star Citizen AFK helper for Windows in a HUD look. Always shows a countdown of the game's AFK window with an adjustable warning tone. Optional mouse PULSE (ARMED/OFF) nudges 3 px only while the game is in focus. PULSE OFF = monitor-only, no input sent, for players who want to respect CIG's ToS. Single exe, no dependencies.
+Star Citizen AFK timer for Windows: counts down the idle-kick window and beeps before you're kicked. Monitor-only mode sends no input. Optional anti-AFK pulse. Free, open source, single exe.
 
 TOPICS:
-star-citizen, anti-afk, afk, afk-timer, windows, winforms, csharp, dotnet-framework, utility, gaming, hud, idle
+star-citizen, starcitizen, afk, afk-timer, idle-timer, anti-afk, afk-kick, countdown-timer, windows, winforms, csharp, dotnet-framework, gaming-tool, open-source
