@@ -4,10 +4,10 @@ using System.Runtime.InteropServices; using System.Windows.Forms; using System.I
 
 [assembly: AssemblyTitle("Station Keeper")]
 [assembly: AssemblyProduct("Station Keeper")]
-[assembly: AssemblyDescription("Keeps you from idling out by nudging the mouse only while Star Citizen is in focus.")]
+[assembly: AssemblyDescription("AFK window countdown with warning tone, plus an optional mouse PULSE that nudges only while Star Citizen is in focus.")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 FrittenFritz")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 
 static class N {
   [StructLayout(LayoutKind.Sequential)] public struct MI { public int dx, dy; public uint data, flags, time; public IntPtr extra; }
@@ -58,15 +58,18 @@ class AfkForm : Form {
   bool on=false; int min, max, left; string fg="", last; Random rnd=new Random(); Timer t=new Timer();
   Rectangle tog=new Rectangle(20,50,340,62), close=new Rectangle(350,6,24,22); bool hoverClose;
   // AFK window panel
-  const int AY=320; Rectangle slider=new Rectangle(90,AY+92,160,14), test=new Rectangle(302,AY+86,50,24), chk=new Rectangle(20,448,170,22);
+  const TextFormatFlags CF=TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter|TextFormatFlags.NoPadding|TextFormatFlags.SingleLine; const int WH=40; int wo=WH; bool warnOn; int AY { get { return 320+wo; } } Rectangle slider { get { return new Rectangle(90,AY+92,160,14); } } Rectangle test { get { return new Rectangle(302,AY+86,50,24); } } Rectangle chk { get { return new Rectangle(20,448+wo,170,22); } }
+  bool scRunning; int blink;
   bool dragVol, warned, seenSc; DateTime lastAct=DateTime.Now; int afkLeft; string afkState="NO SESSION";
   static Font Mk(string n,float s,FontStyle st){ Font f=new Font(n,s,st); return f.Name==n?f:new Font("Segoe UI",s,st); }
   public AfkForm(int mn,int mx){ min=mn; max=mx; left=rnd.Next(min,max+1); Cfg.Load(); afkLeft=Cfg.AfkTimeout;
-    Text="Station Keeper"; FormBorderStyle=FormBorderStyle.None; Size=new Size(380,484); BackColor=BG; StartPosition=FormStartPosition.CenterScreen; TopMost=Cfg.Top; DoubleBuffered=true; Icon=MakeIcon();
-    last="["+DateTime.Now.ToString("HH:mm:ss")+"] System ready. Toggle to ACTIVE to start. No keys, no clicks.";
+    Text="Station Keeper"; FormBorderStyle=FormBorderStyle.None; Size=new Size(380,484+WH); BackColor=BG; StartPosition=FormStartPosition.CenterScreen; TopMost=Cfg.Top; DoubleBuffered=true; Icon=MakeIcon();
+    last="["+DateTime.Now.ToString("HH:mm:ss")+"] System ready. PULSE OFF: monitor-only, no input sent. Click to ARM the pulse.";
     t.Interval=1000; t.Tick+=Tick; t.Start(); Tick(null,null); }
   static string Ts(){ return "["+DateTime.Now.ToString("HH:mm:ss")+"] "; }
-  void Tick(object s,EventArgs e){ fg=N.Fg()??""; bool sc=fg=="StarCitizen";
+  void Tick(object s,EventArgs e){ fg=N.Fg()??""; bool sc=fg=="StarCitizen"; blink++;
+    if(!sc){ try { Process[] ps=Process.GetProcessesByName("StarCitizen"); scRunning=ps.Length>0; foreach(Process p in ps) p.Dispose(); } catch { scRunning=false; } } else scRunning=true;
+    SetWarn(on && !sc);
     if(on && --left<=0){
       if(sc){ N.Move(3); System.Threading.Thread.Sleep(120); N.Move(-3); last=Ts()+"Star Citizen in focus -> mouse nudged (3 px)."; }
       else last=Ts()+"Star Citizen not in focus -> nothing sent.";
@@ -79,10 +82,12 @@ class AfkForm : Form {
     if(!seenSc){ afkState="NO SESSION"; afkLeft=Cfg.AfkTimeout; return; }
     double idle=(now-lastAct).TotalSeconds; int rem=(int)Math.Ceiling(Cfg.AfkTimeout-idle); if(rem<0) rem=0;
     bool counting=!sc || idle>=Cfg.AfkGrace;
-    if(!counting){ afkState="ACTIVE IN GAME"; afkLeft=Cfg.AfkTimeout; warned=false; return; }
+    if(!counting){ afkState=(on&&sc)?"HELD BY PULSE":"ACTIVE IN GAME"; afkLeft=Cfg.AfkTimeout; warned=false; return; }
     afkLeft=rem; afkState=rem==0?"WINDOW EXPIRED":(sc?"IDLE IN GAME":"TABBED OUT");
-    if(rem<=60 && rem>0 && !warned){ warned=true; Beep.Play(Cfg.Volume); last=Ts()+"AFK warning: 1 minute left in the SC idle window."; }
+    if(rem<=60 && rem>0 && !warned){ warned=true; Beep.Play(Cfg.Volume); last=Ts()+"AFK warning: 1 minute left in the AFK window."; }
     if(rem>60) warned=false; }
+  // Warning banner slot: fixed WH px reserved in the layout so the window never resizes.
+  void SetWarn(bool w){ if(w==warnOn) return; warnOn=w; Invalidate(); }
   void SetVol(int x){ int v=(int)Math.Round((x-slider.X)*100.0/slider.Width); Cfg.Volume=Math.Max(0,Math.Min(100,v)); Invalidate(); }
   protected override void OnMouseMove(MouseEventArgs e){ if(dragVol){ SetVol(e.X); return; }
     bool h=close.Contains(e.Location); if(h!=hoverClose){hoverClose=h;Invalidate();}
@@ -94,7 +99,7 @@ class AfkForm : Form {
     if(Rectangle.Inflate(slider,4,6).Contains(e.Location)){ dragVol=true; SetVol(e.X); return; }
     if(test.Contains(e.Location)){ Beep.Play(Cfg.Volume); last=Ts()+"Warning tone test at "+Cfg.Volume+" %."; Invalidate(); return; }
     if(chk.Contains(e.Location)){ TopMost=!TopMost; Cfg.Top=TopMost; Cfg.Save(); Invalidate(); return; }
-    if(tog.Contains(e.Location)){ on=!on; if(on) left=rnd.Next(min,max+1); last=Ts()+"Guard "+(on?"ACTIVATED.":"DEACTIVATED."); Invalidate(); return; }
+    if(tog.Contains(e.Location)){ on=!on; if(on) left=rnd.Next(min,max+1); last=Ts()+(on?"PULSE ARMED. Nudges only while the game is in focus.":"PULSE OFF. Monitor-only, no input sent."); SetWarn(on && fg!="StarCitizen"); Invalidate(); return; }
     N.ReleaseCapture(); N.SendMessage(Handle,0xA1,2,0); }
   static GraphicsPath RR(float x,float y,float w,float h,float r){ GraphicsPath g=new GraphicsPath(); g.AddArc(x,y,r,r,180,90); g.AddArc(x+w-r,y,r,r,270,90); g.AddArc(x+w-r,y+h-r,r,r,0,90); g.AddArc(x,y+h-r,r,r,90,90); g.CloseFigure(); return g; }
   protected override void OnPaint(PaintEventArgs e){ Graphics g=e.Graphics; g.SmoothingMode=SmoothingMode.AntiAlias; g.TextRenderingHint=System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -106,9 +111,16 @@ class AfkForm : Form {
     int ox=tog.X, oy=tog.Y; Color col=on?CY:RED;
     if(on) for(int i=6;i>=1;i--) using(GraphicsPath gp=RR(ox+8-i,oy+8-i,110+2*i,44+2*i,44+2*i)) using(Brush b=new SolidBrush(Color.FromArgb(14,0,216,255))) g.FillPath(b,gp);
     using(GraphicsPath gp=RR(ox+8,oy+8,110,44,44)){ using(Brush b=new SolidBrush(PANEL)) g.FillPath(b,gp); using(Pen p=new Pen(col,2)) g.DrawPath(p,gp); }
-    using(Brush b=new SolidBrush(col)){ g.FillEllipse(b,ox+(on?78:14),oy+14,32,32); g.DrawString(on?"A C T I V E":"I N A C T I V E",fB,b,ox+135,oy+10); }
-    g.DrawString("CLICK TO TOGGLE",fS,db,ox+137,oy+38);
-    int sx=20, sy=124; Rectangle sr=new Rectangle(sx,sy,340,186);
+    using(Brush b=new SolidBrush(col)){ g.FillEllipse(b,ox+(on?78:14),oy+14,32,32); g.DrawString(on?"A R M E D":"O F F",fB,b,ox+135,oy+10); }
+    g.DrawString(on?"PULSE ARMED  //  CLICK TO TOGGLE":"PULSE OFF  //  MONITOR ONLY",fS,db,ox+137,oy+38);
+    if(!warnOn){ Rectangle pr=new Rectangle(20,120,340,WH-8); using(Pen p=new Pen(Color.FromArgb(40,0,216,255))) g.DrawRectangle(p,pr); using(Brush b=new SolidBrush(Color.FromArgb(40,0,216,255))) g.FillRectangle(b,pr.X,pr.Y,5,pr.Height); TextRenderer.DrawText(g,"N O   A L E R T S",fS,new Rectangle(pr.X+5,pr.Y,pr.Width-5,pr.Height),Color.FromArgb(90,0,216,255),CF); }
+    if(warnOn){ bool hi=blink%2==0; Color wc=scRunning?AMBER:ALERT; Rectangle wr=new Rectangle(20,120,340,WH-8);
+      using(Brush b=new SolidBrush(Color.FromArgb(hi?70:35,wc))) g.FillRectangle(b,wr);
+      using(Pen p=new Pen(Color.FromArgb(hi?255:140,wc),hi?2f:1f)) g.DrawRectangle(p,wr);
+      using(Brush b=new SolidBrush(wc)){ g.FillRectangle(b,wr.X,wr.Y,5,wr.Height);
+        TextRenderer.DrawText(g,scRunning?"/!\\  PULSE INEFFECTIVE - GAME NOT IN FOCUS":"/!\\  PULSE INEFFECTIVE - GAME NOT RUNNING",fH,new Rectangle(wr.X+5,wr.Y+3,wr.Width-5,14),wc,CF); }
+      TextRenderer.DrawText(g,scRunning?"Tab back into the game or the next pulse does nothing.":"Start the game. The next pulse will send nothing.",fS,new Rectangle(wr.X+5,wr.Y+17,wr.Width-5,12),((SolidBrush)tb).Color,CF); }
+    int sx=20, sy=124+wo; Rectangle sr=new Rectangle(sx,sy,340,186);
     using(Brush b=new SolidBrush(PANEL)) g.FillRectangle(b,sr);
     using(Pen p=new Pen(Color.FromArgb(80,0,216,255))) g.DrawRectangle(p,sx,sy,339,185);
     g.FillRectangle(cb,sx,sy,4,18); g.DrawString("S Y S T E M   S T A T U S",fH,cb,sx+10,sy+2);
@@ -122,12 +134,12 @@ class AfkForm : Form {
     using(Pen p=new Pen(Color.FromArgb(60,0,216,255))) g.DrawLine(p,sx+10,sy+100,sx+330,sy+100);
     g.DrawString("LAST EVENT",fS,db,sx+10,sy+106);
     g.DrawString(last,fL,tb,new RectangleF(sx+10,sy+124,320,56));
-    // --- SC AFK window panel ---
+    // --- AFK window panel ---
     int ay=AY; bool counting=afkState=="IDLE IN GAME"||afkState=="TABBED OUT"||afkState=="WINDOW EXPIRED";
     Color ac=!counting?DIM:(afkLeft<=60?ALERT:(afkLeft<=180?AMBER:CY));
     using(Brush b=new SolidBrush(PANEL)) g.FillRectangle(b,sx,ay,340,118);
     using(Pen p=new Pen(Color.FromArgb(80,ac))) g.DrawRectangle(p,sx,ay,339,117);
-    using(Brush b=new SolidBrush(counting?ac:CY)) { g.FillRectangle(b,sx,ay,4,18); g.DrawString("S C   A F K   W I N D O W",fH,b,sx+10,ay+2); }
+    using(Brush b=new SolidBrush(counting?ac:CY)) { g.FillRectangle(b,sx,ay,4,18); g.DrawString("A F K   W I N D O W",fH,b,sx+10,ay+2); }
     g.DrawString("TIME TO KICK",fS,db,sx+10,ay+30);
     using(Brush b=new SolidBrush(ac)) g.DrawString(string.Format("{0:00}:{1:00}",afkLeft/60,afkLeft%60),fM,b,sx+8,ay+44);
     g.DrawString("STATE",fS,db,sx+190,ay+30);
@@ -144,21 +156,23 @@ class AfkForm : Form {
     g.FillRectangle(cb,kx-3,slider.Y-1,6,16);
     g.DrawString(Cfg.Volume+" %",fS,tb,slider.Right+8,ay+93);
     using(Pen p=new Pen(CY,1)) g.DrawRectangle(p,test);
-    g.DrawString("TEST",fS,cb,test.X+11,test.Y+5);
+    TextRenderer.DrawText(g,"TEST",fS,test,((SolidBrush)cb).Color,CF);
     using(Pen p=new Pen(TopMost?CY:DIM,1.5f)) g.DrawRectangle(p,chk.X,chk.Y+3,14,14);
     if(TopMost){ using(Brush b=new SolidBrush(Color.FromArgb(40,0,216,255))) g.FillRectangle(b,chk.X+1,chk.Y+4,13,13);
       using(Pen p=new Pen(CY,2.2f)) g.DrawLines(p,new PointF[]{ new PointF(chk.X+3,chk.Y+10), new PointF(chk.X+6,chk.Y+14), new PointF(chk.X+12,chk.Y+6) }); }
     g.DrawString("A L W A Y S   O N   T O P",fS,TopMost?cb:db,chk.X+22,chk.Y+4); }
+  public void ArmForShot(){ on=true; left=rnd.Next(min,max+1); last=Ts()+"PULSE ARMED. Nudges only while the game is in focus."; Tick(null,null); }
   public static Icon MakeIcon(){ Bitmap b=new Bitmap(32,32); using(Graphics g=Graphics.FromImage(b)){ g.SmoothingMode=SmoothingMode.AntiAlias; g.Clear(Color.Transparent);
       using(Brush br=new SolidBrush(BG)) g.FillEllipse(br,1,1,30,30); using(Pen p=new Pen(CY,2)) g.DrawEllipse(p,2,2,28,28); using(Brush br=new SolidBrush(CY)) g.FillEllipse(br,11,11,10,10); }
     return Icon.FromHandle(b.GetHicon()); }
 }
 static class Program {
-  [STAThread] static void Main(string[] a){ int mn=180, mx=300; string shot=null;
+  [STAThread] static void Main(string[] a){ int mn=180, mx=300; string shot=null; bool armed=false;
     for(int i=0;i<a.Length-1;i++){ if(a[i]=="--min") int.TryParse(a[i+1],out mn); if(a[i]=="--max") int.TryParse(a[i+1],out mx); if(a[i]=="--screenshot") shot=a[i+1]; }
+    foreach(string x in a) if(x=="--screenshot-armed") armed=true;
     if(a.Length>0 && a[0]=="--make-icon"){ using(var fs=File.Create(a[1])) AfkForm.MakeIcon().Save(fs); return; }
     if(mn<1) mn=1; if(mx<mn) mx=mn;
-    Application.EnableVisualStyles(); AfkForm f=new AfkForm(mn,mx);
+    Application.EnableVisualStyles(); AfkForm f=new AfkForm(mn,mx); if(armed) f.ArmForShot();
     if(shot!=null){ Timer t2=new Timer(); t2.Interval=1200; t2.Tick+=delegate{ t2.Stop(); Bitmap b=new Bitmap(f.Width,f.Height); f.DrawToBitmap(b,new Rectangle(0,0,f.Width,f.Height)); b.Save(shot); f.Close(); }; t2.Start(); }
     Application.Run(f); }
 }
