@@ -1,0 +1,5 @@
+ABOUT (description):
+Station Keeper is a tiny HUD-styled Windows tool that keeps your Star Citizen session from idling out. While the game is in focus, it nudges the mouse 3 px at random intervals, with no keys and no clicks. It has a single exe, no dependencies, and an Always-on-top option. Unofficial and used at your own risk: the RSI ToS prohibit macro software.
+
+TOPICS:
+star-citizen, anti-afk, afk, windows, winforms, csharp, dotnet-framework, utility, gaming, hud, idle
