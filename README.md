@@ -9,7 +9,7 @@
 ![Platform](https://img.shields.io/badge/PLATFORM-WINDOWS-00D8FF?style=for-the-badge&labelColor=0A0F1A)
 ![.NET](https://img.shields.io/badge/.NET_FRAMEWORK-4.x-00D8FF?style=for-the-badge&labelColor=0A0F1A)
 ![License](https://img.shields.io/badge/LICENSE-MIT-00D8FF?style=for-the-badge&labelColor=0A0F1A)
-![Version](https://img.shields.io/badge/VERSION-1.2.0-00D8FF?style=for-the-badge&labelColor=0A0F1A)
+![Version](https://img.shields.io/badge/VERSION-1.3.0-00D8FF?style=for-the-badge&labelColor=0A0F1A)
 
 </div>
 
@@ -31,6 +31,9 @@
   <img src="docs/screenshot.png" alt="Station Keeper AFK timer, PULSE OFF" width="380">
   <img src="docs/screenshot-warning.png" alt="Station Keeper: PULSE armed while the game is not in focus" width="380">
   <br><sub>Left: AFK timer in monitor-only mode (PULSE OFF). Right: PULSE ARMED while the game is not in focus.</sub>
+  <br><br>
+  <img src="docs/screenshot-mini.png" alt="Station Keeper MINI overlay with PULSE ARMED" width="170">
+  <br><sub>MINI overlay: AFK window countdown plus the PULSE line, semi-transparent and click-through when locked.</sub>
 </div>
 
 <sub>Unofficial fan project, not affiliated with Cloud Imperium Games / Roberts Space Industries. Star Citizen is a trademark of CIG.</sub>
@@ -46,6 +49,8 @@
 | ⏳ | **AFK window countdown** | Countdown of the game's idle-kick window (default 15 min, adjustable). **Always runs, independent of the PULSE toggle.** Starts after 1 min without input in the game, or immediately when you tab out. Turns amber at 3:00 and red at 1:00. |
 | 🔔 | **Warning tone** | A short beep once per countdown when 1 minute is left. Volume slider (0–100 %) plus a **TEST** button, saved across restarts. |
 | ▣ | **Always on top** | Optional checkbox, saved across restarts. |
+| ▪ | **MINI overlay** | Checkbox next to Always on top. Shrinks the window to a compact, semi-transparent overlay with the AFK window countdown and a PULSE status dot. Drag it into a corner of the game, then click the lock icon to make it click-through. It never takes focus from the game. Opacity slider 10–100 %, or the mouse wheel over the unlocked overlay. Position and state are saved. |
+| ☰ | **Tray menu** | **Show / Unlock mini / Normal view / Exit**. Needed to unlock or leave the locked MINI overlay, since it ignores clicks. |
 | ⚙ | **Zero dependencies** | Single exe built with the .NET Framework compiler that ships with Windows. No installer, autostart, registry entries or admin rights. |
 
 ### Optional PULSE (off by default, at your own risk)
@@ -55,8 +60,24 @@
 | ⏻ | **ARMED / OFF toggle** | Large HUD toggle that **only** switches the PULSE. The app always starts with **PULSE OFF**. |
 | ↔ | **Minimal input** | Moves the mouse 3 px and back via Win32 `SendInput`. **No keys, no clicks.** |
 | ◎ | **Foreground-only** | A nudge is only sent when the foreground window belongs to the `StarCitizen` process. |
-| ⏱ | **Random interval** | 180–300 s by default, with a live countdown in the status panel. |
+| ⏱ | **Random interval** | 180–300 s by default, with a live countdown in the status panel (and in the MINI overlay). |
+| ⏸ | **Idle delay (STANDBY)** | The pulse countdown only starts after the grace time (`AfkGraceSeconds`) without real input and shows **STANDBY** until then. Any real mouse, keyboard or joystick/HOTAS input resets it, so a pulse never fires while you are playing. Station Keeper's own pulses do not count as input. A final check skips the pulse if you touched anything in the last 2 s. |
 | ⚠ | **Pulse-ineffective warning** | While **ARMED** but the game is not in the foreground, a blinking banner shows amber **PULSE INEFFECTIVE - GAME NOT IN FOCUS** or red **GAME NOT RUNNING**. No sound. |
+
+<img src="docs/divider.svg" width="100%">
+
+## ◢ MINI MODE
+
+Tick **MINI** next to *Always on top* and the same window turns into a small overlay:
+
+- **AFK window** countdown, with the same amber/red colours as the full window.
+- **PULSE dot:** cyan = ARMED, red = OFF. While ARMED, a second line shows **NEXT PULSE** (countdown or STANDBY), or amber **GAME NOT IN FOCUS** / red **GAME NOT RUNNING**.
+- **Unlocked:** drag it anywhere. The mouse wheel changes the opacity, and right-click opens the tray menu.
+- **Locked** (click the lock icon): fixed in place and click-through. It never takes focus from the game, so it can sit on top of your HUD.
+- Use the tray icon to **Unlock mini** or go back to the **Normal view**.
+
+> [!NOTE]
+> The overlay is only visible over the game in **borderless windowed** mode. In exclusive fullscreen the game draws over everything.
 
 <img src="docs/divider.svg" width="100%">
 
@@ -70,21 +91,23 @@ This mode is meant for players who **want to stay within the RSI Terms of Servic
 
 ## ◢ VERIFY THE DOWNLOAD
 
-SHA256 of the assets in release **v1.2.0**:
+SHA256 of the assets in release **v1.3.0**:
 
 | File | SHA256 |
 |---|---|
-| `StationKeeper.exe` | `0f5945ea13cd4be8be315121d1248e59cce33f224ef786f54d85a41aaa99a592` |
-| `StationKeeper-v1.2.0.zip` | `319dca7ddc87b3b0577de6c73b31d4bf6551a6e825fc39abc4dfd4755a5133c5` |
+| `StationKeeper.exe` | `55368aa0103976c5fc4f026cc724aeded482fff227f3156dd74417282b4a662a` |
+| `StationKeeper-v1.3.0.zip` | `6c4f70b041ca243e8f67e8de5b315493d3652465469fc101a595b42ad63a3fd3` |
 
 Check them in PowerShell:
 
 ```powershell
 Get-FileHash .\StationKeeper.exe -Algorithm SHA256
-Get-FileHash .\StationKeeper-v1.2.0.zip -Algorithm SHA256
+Get-FileHash .\StationKeeper-v1.3.0.zip -Algorithm SHA256
 ```
 
-**VirusTotal:** [StationKeeper.exe](https://www.virustotal.com/gui/file/0f5945ea13cd4be8be315121d1248e59cce33f224ef786f54d85a41aaa99a592) · [StationKeeper-v1.2.0.zip](https://www.virustotal.com/gui/file/319dca7ddc87b3b0577de6c73b31d4bf6551a6e825fc39abc4dfd4755a5133c5). A few heuristic scanners flag the unsigned exe because it can send keyboard input (the optional PULSE). No major engine flags it. The full source is in this repo, so you can read it and build it yourself.
+**VirusTotal:** [StationKeeper.exe](https://www.virustotal.com/gui/file/55368aa0103976c5fc4f026cc724aeded482fff227f3156dd74417282b4a662a) · [StationKeeper-v1.3.0.zip](https://www.virustotal.com/gui/file/6c4f70b041ca243e8f67e8de5b315493d3652465469fc101a595b42ad63a3fd3)
+
+A few heuristic scanners flag the unsigned exe because it can send mouse input (the optional PULSE). No major engine flags it. The full source is in this repo, so you can read it and build it yourself.
 
 **SmartScreen:** the exe is not code-signed, so Windows may show "Windows protected your PC" on first launch. Click **More info > Run anyway**, or build it yourself.
 
@@ -112,7 +135,8 @@ The output is written to `bin\StationKeeper.exe`.
    - **ARMED**: the PULSE is on. Switch to Star Citizen; the mouse is nudged only while the game is in focus.
 3. If the PULSE is **ARMED** and you tab out (or the game is not running), a blinking warning banner tells you the next pulse will have no effect. Tab back into Star Citizen to clear it.
 4. The AFK window countdown runs in both modes.
-5. To quit, click **✕** in the top-right corner. You can drag the window anywhere.
+5. Optional: tick **MINI** for the compact overlay, drag it into place and click the lock icon. Use the tray icon to unlock it or return to the normal view.
+6. To quit, click **✕** in the top-right corner (or **Exit** in the tray menu). You can drag the window anywhere.
 
 ```bat
 StationKeeper.exe --min 120 --max 240
@@ -139,6 +163,11 @@ AlwaysOnTop=0
 WarningVolume=60
 AfkTimeoutSeconds=900
 AfkGraceSeconds=60
+MiniMode=0
+MiniLocked=0
+MiniX=-1
+MiniY=-1
+MiniOpacity=70
 ```
 
 | Key | Default | Description |
@@ -146,16 +175,22 @@ AfkGraceSeconds=60
 | `AlwaysOnTop` | `0` | Keep the window above other windows |
 | `WarningVolume` | `60` | Warning tone volume in percent (0 = muted) |
 | `AfkTimeoutSeconds` | `900` | Length of Star Citizen's AFK window. 15 min is the value widely reported by players; CIG has not published an official number. |
-| `AfkGraceSeconds` | `60` | Idle time in the game before the AFK countdown is shown |
+| `AfkGraceSeconds` | `60` | Idle time before the AFK countdown is shown. Also the idle delay before the PULSE countdown starts |
+| `MiniMode` | `0` | Start in the MINI overlay |
+| `MiniLocked` | `0` | MINI overlay locked (click-through) |
+| `MiniX` / `MiniY` | `-1` | MINI overlay position (`-1` = top-right of the primary screen). Clamped to a visible screen on load |
+| `MiniOpacity` | `70` | MINI overlay opacity in percent (10–100) |
 
 ### How the AFK timer counts
 
 - The countdown always measures from your **last input while Star Citizen was in the foreground** (Win32 `GetLastInputInfo`).
 - While you are in the game, it starts showing after 1 minute without input. When you tab out, it shows right away, still counting from your last input in the game.
-- Any input in the game resets it. Station Keeper's own nudges are real mouse input to the game, so when the PULSE is **ARMED** and the game is in focus they keep resetting the timer, and the state shows **HELD BY PULSE**. When you tab out, no nudges are sent and the countdown runs normally.
+- Any input in the game resets it.
+- While the PULSE is **ARMED** and the game is in focus, the AFK window is **held** at full time: shown greyed, no countdown, no warning tone, state **HELD BY PULSE**. The PULSE takes care of idle in that state.
+- As soon as the PULSE is OFF or the game loses focus, the AFK window starts again from a fresh full window: immediately when tabbed out, otherwise after the grace time without input.
 
 > [!NOTE]
-> - **Always on top** cannot overlay the game in exclusive fullscreen. Use the *Borderless* window mode.
+> - **Always on top** and the **MINI** overlay cannot overlay the game in exclusive fullscreen. Use the *Borderless* window mode.
 > - If Star Citizen runs as administrator, Station Keeper must run as administrator too. Otherwise Windows blocks the input.
 > - The executable is unsigned, so Windows SmartScreen or Defender may warn on first launch (see *Verify the download*).
 
@@ -174,6 +209,6 @@ This is an unofficial fan project. It is not affiliated with, endorsed by or spo
 
 **[MIT License](LICENSE)** · Made by **FrittenFritz**
 
-<sub>STATION KEEPER // v1.2.0</sub>
+<sub>STATION KEEPER // v1.3.0</sub>
 
 </div>
