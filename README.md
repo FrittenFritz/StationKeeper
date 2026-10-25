@@ -9,7 +9,7 @@
 ![Platform](https://img.shields.io/badge/PLATFORM-WINDOWS-00D8FF?style=for-the-badge&labelColor=0A0F1A)
 ![.NET](https://img.shields.io/badge/.NET_FRAMEWORK-4.x-00D8FF?style=for-the-badge&labelColor=0A0F1A)
 ![License](https://img.shields.io/badge/LICENSE-MIT-00D8FF?style=for-the-badge&labelColor=0A0F1A)
-![Version](https://img.shields.io/badge/VERSION-1.3.0-00D8FF?style=for-the-badge&labelColor=0A0F1A)
+![Version](https://img.shields.io/badge/VERSION-1.3.1-00D8FF?style=for-the-badge&labelColor=0A0F1A)
 
 </div>
 
@@ -22,7 +22,7 @@
 | Part | What it does | Sends input? |
 |---|---|---|
 | **AFK timer** | Counts down the game's idle-kick window and beeps when 1 minute is left. **Always runs**, no matter how the toggle is set. | **No** |
-| **PULSE** (optional, top toggle **ARMED / OFF**) | Nudges the mouse 3 px and back at random intervals, only while Star Citizen is in the foreground. Off by default. | Yes, only when **ARMED** |
+| **PULSE** (optional, top toggle **ARMED / OFF**) | Makes a **small relative mouse move** (15 counts right and back) at random intervals, only while Star Citizen is in the foreground. Off by default. | Yes, only when **ARMED** |
 
 > [!WARNING]
 > **The optional PULSE is at your own risk.** The [RSI Terms of Service](https://robertsspaceindustries.com/en/tos) prohibit users to *"Use or distribute auto software programs, macro software programs or other cheat utility software"*. Arming the PULSE may violate this and can lead to action against your account. By arming it, you accept that risk. With **PULSE OFF**, Station Keeper is a pure monitor that sends no input.
@@ -58,8 +58,8 @@
 | | Feature | Details |
 |---|---|---|
 | ⏻ | **ARMED / OFF toggle** | Large HUD toggle that **only** switches the PULSE. The app always starts with **PULSE OFF**. |
-| ↔ | **Minimal input** | Moves the mouse 3 px and back via Win32 `SendInput`. **No keys, no clicks.** |
-| ◎ | **Foreground-only** | A nudge is only sent when the foreground window belongs to the `StarCitizen` process. |
+| ↔ | **Minimal input** | One tiny relative mouse move via Win32 `SendInput`: 15 counts to the right in 3 steps, ~100 ms pause, the same steps back. The view twitches for a moment and returns. **No keys, no clicks.** |
+| ◎ | **Foreground-only** | A pulse is only sent when the foreground window belongs to the `StarCitizen` process. |
 | ⏱ | **Random interval** | 180–300 s by default, with a live countdown in the status panel (and in the MINI overlay). |
 | ⏸ | **Idle delay (STANDBY)** | The pulse countdown only starts after the grace time (`AfkGraceSeconds`) without real input and shows **STANDBY** until then. Any real mouse, keyboard or joystick/HOTAS input resets it, so a pulse never fires while you are playing. Station Keeper's own pulses do not count as input. A final check skips the pulse if you touched anything in the last 2 s. |
 | ⚠ | **Pulse-ineffective warning** | While **ARMED** but the game is not in the foreground, a blinking banner shows amber **PULSE INEFFECTIVE - GAME NOT IN FOCUS** or red **GAME NOT RUNNING**. No sound. |
@@ -91,23 +91,24 @@ This mode is meant for players who **want to stay within the RSI Terms of Servic
 
 ## ◢ VERIFY THE DOWNLOAD
 
-SHA256 of the assets in release **v1.3.0**:
+SHA256 of the assets in release **v1.3.1**:
 
 | File | SHA256 |
 |---|---|
-| `StationKeeper.exe` | `55368aa0103976c5fc4f026cc724aeded482fff227f3156dd74417282b4a662a` |
-| `StationKeeper-v1.3.0.zip` | `6c4f70b041ca243e8f67e8de5b315493d3652465469fc101a595b42ad63a3fd3` |
+| `StationKeeper.exe` | `9cf211c64b5db5993017e0df48ebfd22cabc857241efdeef5c9170664d78ce9d` |
+| `StationKeeper-v1.3.1.zip` | `a194c94e65312116e176ac276ff89d7168d79087cb3c77e585701172de921d39` |
 
 Check them in PowerShell:
 
 ```powershell
 Get-FileHash .\StationKeeper.exe -Algorithm SHA256
-Get-FileHash .\StationKeeper-v1.3.0.zip -Algorithm SHA256
+Get-FileHash .\StationKeeper-v1.3.1.zip -Algorithm SHA256
 ```
 
-**VirusTotal:** [StationKeeper.exe](https://www.virustotal.com/gui/file/55368aa0103976c5fc4f026cc724aeded482fff227f3156dd74417282b4a662a) · [StationKeeper-v1.3.0.zip](https://www.virustotal.com/gui/file/6c4f70b041ca243e8f67e8de5b315493d3652465469fc101a595b42ad63a3fd3)
+- [StationKeeper.exe on VirusTotal](https://www.virustotal.com/gui/file/9cf211c64b5db5993017e0df48ebfd22cabc857241efdeef5c9170664d78ce9d) (9/70, heuristic/generic detections)
+- [StationKeeper-v1.3.1.zip on VirusTotal](https://www.virustotal.com/gui/file/a194c94e65312116e176ac276ff89d7168d79087cb3c77e585701172de921d39) (6/67, heuristic/generic detections)
 
-A few heuristic scanners flag the unsigned exe because it can send mouse input (the optional PULSE). No major engine flags it. The full source is in this repo, so you can read it and build it yourself.
+Some scanners flag the unsigned exe with generic or heuristic detections because it uses input hooks and can send mouse input (the optional PULSE). The full source is in this repo, so you can read it and build it yourself.
 
 **SmartScreen:** the exe is not code-signed, so Windows may show "Windows protected your PC" on first launch. Click **More info > Run anyway**, or build it yourself.
 
@@ -132,7 +133,7 @@ The output is written to `bin\StationKeeper.exe`.
 1. Run `StationKeeper.exe`.
 2. Choose a mode with the top toggle:
    - **OFF** (default): monitor-only. No input is sent; just watch the AFK window countdown and listen for the warning tone.
-   - **ARMED**: the PULSE is on. Switch to Star Citizen; the mouse is nudged only while the game is in focus.
+   - **ARMED**: the PULSE is on. Switch to Star Citizen; the small mouse move is sent only while the game is in focus.
 3. If the PULSE is **ARMED** and you tab out (or the game is not running), a blinking warning banner tells you the next pulse will have no effect. Tab back into Star Citizen to clear it.
 4. The AFK window countdown runs in both modes.
 5. Optional: tick **MINI** for the compact overlay, drag it into place and click the lock icon. Use the tray icon to unlock it or return to the normal view.
@@ -144,8 +145,8 @@ StationKeeper.exe --min 120 --max 240
 
 | Argument | Default | Description |
 |---|---|---|
-| `--min <seconds>` | `180` | Minimum interval between nudges |
-| `--max <seconds>` | `300` | Maximum interval between nudges |
+| `--min <seconds>` | `180` | Minimum interval between pulses |
+| `--max <seconds>` | `300` | Maximum interval between pulses |
 
 <img src="docs/divider.svg" width="100%">
 
@@ -183,11 +184,13 @@ MiniOpacity=70
 
 ### How the AFK timer counts
 
-- The countdown always measures from your **last input while Star Citizen was in the foreground** (Win32 `GetLastInputInfo`).
+- The countdown always measures from your **last real input while Star Citizen was in the foreground**, or from the last pulse that was actually sent to the game.
+- Real input means hardware keyboard/mouse events (low-level hooks; injected input from other programs and Station Keeper's own pulses are ignored) and joystick/HOTAS input: any axis movement, button or hat (POV) change counts immediately. Windows' generic "last input" time is not used, because other software can update it without anyone touching anything.
 - While you are in the game, it starts showing after 1 minute without input. When you tab out, it shows right away, still counting from your last input in the game.
 - Any input in the game resets it.
-- While the PULSE is **ARMED** and the game is in focus, the AFK window is **held** at full time: shown greyed, no countdown, no warning tone, state **HELD BY PULSE**. The PULSE takes care of idle in that state.
-- As soon as the PULSE is OFF or the game loses focus, the AFK window starts again from a fresh full window: immediately when tabbed out, otherwise after the grace time without input.
+- While the PULSE is **ARMED** and the game is in focus, the AFK window is **held** at full time: shown greyed, no countdown, no warning tone, state **HELD BY PULSE**.
+- When the hold ends (PULSE OFF or the game loses focus), the countdown continues from your last real input or the last pulse sent to the game.
+- When the PULSE is OFF or the game loses focus, the AFK window counts from your last input or the last pulse: immediately when tabbed out, otherwise after the grace time without input.
 
 > [!NOTE]
 > - **Always on top** and the **MINI** overlay cannot overlay the game in exclusive fullscreen. Use the *Borderless* window mode.
@@ -209,6 +212,6 @@ This is an unofficial fan project. It is not affiliated with, endorsed by or spo
 
 **[MIT License](LICENSE)** · Made by **FrittenFritz**
 
-<sub>STATION KEEPER // v1.3.0</sub>
+<sub>STATION KEEPER // v1.3.1</sub>
 
 </div>

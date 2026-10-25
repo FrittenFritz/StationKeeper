@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.1] - 2026-10-25
+### Fixed
+- Phantom system input reset the PULSE to STANDBY, so pulses never fired on some PCs. Windows' generic "last input" time (`GetLastInputInfo`) is updated by other software every 60 s even with nobody at the PC. Keyboard/mouse activity now comes from low-level hooks that count only hardware events; injected input and Station Keeper's own pulses (tagged) are ignored. The AFK window uses the same real-input source.
+- Joystick/HOTAS: any axis movement, button or hat (POV) counts as input.
+
+### Changed
+- PULSE is a small relative mouse move (15 counts right in 3 steps, ~100 ms pause, same back); fixes wrong INPUT struct size that made earlier pulses fail silently on 64-bit. `SendInput` results are now checked: LAST EVENT shows "Mouse pulse sent." or "Pulse failed (err N)".
+- LAST EVENT shows why the PULSE went back to STANDBY, e.g. `STANDBY: keyboard/mouse input` or `STANDBY: joystick input`.
+- AFK window hold: while the PULSE is ARMED and the game is in focus, the AFK window is always held at full time (greyed, no countdown, no warning tone, state HELD BY PULSE), as in 1.3.0. When the hold ends (PULSE OFF or the game loses focus), it counts from your last real input or the last pulse instead of restarting at a full window.
+- The window title and the version label in the header are now centered exactly, horizontally and vertically.
+- The PULSE switch and its OFF/ARMED label are red when OFF and green when ARMED.
+- Fixed a once-per-second game stutter while Station Keeper was open: keyboard/mouse hooks now run on their own thread, and only connected joysticks are polled, in the background.
+- The version number (e.g. v1.3.1) is shown small and dimmed in the header, right of the title, and in the tray icon tooltip.
+
 ## [1.3.0] - 2026-10-25
 ### Added
 - MINI mode: a **MINI** checkbox next to Always on top shrinks the same window to a compact, semi-transparent, always-on-top overlay with the AFK window countdown and a PULSE status dot (cyan: ARMED, red: OFF).
