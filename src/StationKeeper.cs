@@ -197,7 +197,7 @@ class AfkForm : Form {
     Color ac=!counting?DIM:(afkLeft<=60?ALERT:(afkLeft<=180?AMBER:CY));
     using(Pen p=new Pen(Color.FromArgb(140,0,216,255),1)) g.DrawRectangle(p,0,0,Width-1,Height-1);
     using(Pen p=new Pen(CY,3)){ g.DrawLine(p,0,0,12,0); g.DrawLine(p,0,0,0,12); g.DrawLine(p,Width-1,Height-13,Width-1,Height-1); g.DrawLine(p,Width-13,Height-1,Width-1,Height-1); }
-    using(Brush b=new SolidBrush(on?CY:RED)) g.FillEllipse(b,10,20,10,10);
+    using(Brush b=new SolidBrush(on?GREEN:RED)) g.FillEllipse(b,10,20,10,10);
     using(Brush b=new SolidBrush(DIM)) g.DrawString(on?"AFK WINDOW  //  ARMED":"AFK WINDOW  //  OFF",fS,b,26,3);
     using(Brush b=new SolidBrush(ac)) g.DrawString(string.Format("{0:00}:{1:00}",afkLeft/60,afkLeft%60),fMini,b,24,15);
     if(on){ bool sc=fg=="StarCitizen"; Color pc=sc?CY:(scRunning?AMBER:ALERT);
