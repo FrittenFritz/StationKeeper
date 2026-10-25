@@ -10,7 +10,7 @@
 - LAST EVENT shows why the PULSE went back to STANDBY, e.g. `STANDBY: keyboard/mouse input` or `STANDBY: joystick input`.
 - AFK window hold: while the PULSE is ARMED and the game is in focus, the AFK window is always held at full time (greyed, no countdown, no warning tone, state HELD BY PULSE), as in 1.3.0. When the hold ends (PULSE OFF or the game loses focus), it counts from your last real input or the last pulse instead of restarting at a full window.
 - The window title and the version label in the header are now centered exactly, horizontally and vertically.
-- The PULSE switch and its OFF/ARMED label are red when OFF and green when ARMED.
+- The PULSE switch, its OFF/ARMED label and the MINI overlay PULSE dot are red when OFF and green when ARMED.
 - Fixed a once-per-second game stutter while Station Keeper was open: keyboard/mouse hooks now run on their own thread, and only connected joysticks are polled, in the background.
 - The version number (e.g. v1.3.1) is shown small and dimmed in the header, right of the title, and in the tray icon tooltip.
 

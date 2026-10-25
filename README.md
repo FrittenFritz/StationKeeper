@@ -71,7 +71,7 @@
 Tick **MINI** next to *Always on top* and the same window turns into a small overlay:
 
 - **AFK window** countdown, with the same amber/red colours as the full window.
-- **PULSE dot:** cyan = ARMED, red = OFF. While ARMED, a second line shows **NEXT PULSE** (countdown or STANDBY), or amber **GAME NOT IN FOCUS** / red **GAME NOT RUNNING**.
+- **PULSE dot:** green = ARMED, red = OFF. While ARMED, a second line shows **NEXT PULSE** (countdown or STANDBY), or amber **GAME NOT IN FOCUS** / red **GAME NOT RUNNING**.
 - **Unlocked:** drag it anywhere. The mouse wheel changes the opacity, and right-click opens the tray menu.
 - **Locked** (click the lock icon): fixed in place and click-through. It never takes focus from the game, so it can sit on top of your HUD.
 - Use the tray icon to **Unlock mini** or go back to the **Normal view**.
@@ -95,8 +95,8 @@ SHA256 of the assets in release **v1.3.1**:
 
 | File | SHA256 |
 |---|---|
-| `StationKeeper.exe` | `9cf211c64b5db5993017e0df48ebfd22cabc857241efdeef5c9170664d78ce9d` |
-| `StationKeeper-v1.3.1.zip` | `a194c94e65312116e176ac276ff89d7168d79087cb3c77e585701172de921d39` |
+| `StationKeeper.exe` | `3b192fad9a1c65b69dd0dd6aaa898a65f135e3b20745177f9bd74438ce07aabf` |
+| `StationKeeper-v1.3.1.zip` | `910d1088053d5e9817c76c226e75530d959400ad5afc86758e6fb5fd5b861dd6` |
 
 Check them in PowerShell:
 
@@ -105,8 +105,8 @@ Get-FileHash .\StationKeeper.exe -Algorithm SHA256
 Get-FileHash .\StationKeeper-v1.3.1.zip -Algorithm SHA256
 ```
 
-- [StationKeeper.exe on VirusTotal](https://www.virustotal.com/gui/file/9cf211c64b5db5993017e0df48ebfd22cabc857241efdeef5c9170664d78ce9d) (9/70, heuristic/generic detections)
-- [StationKeeper-v1.3.1.zip on VirusTotal](https://www.virustotal.com/gui/file/a194c94e65312116e176ac276ff89d7168d79087cb3c77e585701172de921d39) (6/67, heuristic/generic detections)
+- [StationKeeper.exe on VirusTotal](https://www.virustotal.com/gui/file/3b192fad9a1c65b69dd0dd6aaa898a65f135e3b20745177f9bd74438ce07aabf) (9/69, heuristic/generic detections)
+- [StationKeeper-v1.3.1.zip on VirusTotal](https://www.virustotal.com/gui/file/910d1088053d5e9817c76c226e75530d959400ad5afc86758e6fb5fd5b861dd6) (6/66, heuristic/generic detections)
 
 Some scanners flag the unsigned exe with generic or heuristic detections because it uses input hooks and can send mouse input (the optional PULSE). The full source is in this repo, so you can read it and build it yourself.
 
